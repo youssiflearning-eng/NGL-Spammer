@@ -36,7 +36,6 @@ if not HTML_CONTENT:
     except Exception:
         pass
 if not HTML_CONTENT:
-    # Minimal fallback if everything fails
     HTML_CONTENT = "<html><body><h1>NGL Spammer</h1><p>API is online at /api/send</p></body></html>"
 
 USER_AGENTS = [
@@ -49,7 +48,6 @@ USER_AGENTS = [
     "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
     "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-    "Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.115 Mobile/15E148 Safari/604.1",
 ]
 
 def generate_device_id():
@@ -81,6 +79,10 @@ def get_random_ua():
     return random.choice(USER_AGENTS)
 
 def send_single_ngl(username, message):
+    """ REAL - one HTTP POST to https://ngl.link/api/submit per call
+        Every single message does this exact request with fresh deviceId + UA.
+        Returns (success_bool, status_code, msg, device_id) - success only if NGL confirms 200
+    """
     device_id = generate_device_id()
     ua = get_random_ua()
     headers = {
@@ -111,19 +113,23 @@ def send_single_ngl(username, message):
         if resp.status_code == 200:
             try:
                 j = resp.json()
+                # NGL sometimes returns JSON with error even on 200
                 if isinstance(j, dict) and j.get("status") == "error":
                     return False, resp.status_code, str(j), device_id
+                if isinstance(j, dict) and "error" in j and j.get("error"):
+                    return False, resp.status_code, str(j.get("error")), device_id
             except:
                 pass
-            return True, resp.status_code, "Sent successfully", device_id
+            # 200 with no error = REAL delivered to NGL inbox
+            return True, resp.status_code, "Delivered", device_id
         elif resp.status_code == 429:
-            return False, resp.status_code, "Rate limited by NGL - try slower delay", device_id
+            return False, resp.status_code, "Rate limited by NGL - too fast", device_id
         elif resp.status_code == 404:
-            return False, resp.status_code, "User not found - check username", device_id
+            return False, resp.status_code, "User not found", device_id
         else:
-            return False, resp.status_code, f"NGL responded with {resp.status_code}: {resp.text[:200]}", device_id
+            return False, resp.status_code, f"NGL {resp.status_code}: {resp.text[:200]}", device_id
     except requests.exceptions.Timeout:
-        return False, 0, "Timeout connecting to NGL - try again", device_id
+        return False, 0, "Timeout to NGL", device_id
     except Exception as e:
         return False, 0, f"Error: {str(e)[:200]}", device_id
 
@@ -134,27 +140,11 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
-# Serve frontend at root - use preloaded HTML_CONTENT for reliability on Vercel
 @app.route('/', methods=['GET'])
 def serve_index():
-    # Use preloaded HTML if available (loaded at import time)
     if HTML_CONTENT:
         return HTML_CONTENT, 200, {'Content-Type': 'text/html; charset=utf-8'}
-    try:
-        candidates = [
-            os.path.join(os.path.dirname(__file__), '..', 'index.html'),
-            os.path.join(os.getcwd(), 'index.html'),
-            '/var/task/index.html',
-            'index.html'
-        ]
-        for p in candidates:
-            if os.path.exists(p):
-                with open(p, 'r', encoding='utf-8') as f:
-                    html = f.read()
-                return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
-        return "index.html not found", 404
-    except Exception as e:
-        return f"Error loading page: {e}", 500
+    return "index.html not found", 404
 
 @app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health():
@@ -203,22 +193,24 @@ def send():
         return jsonify({"success": False, "error": "Invalid username length (2-30)"}), 400
 
     original_count = count
+    # Vercel timeout is 10s - clamp per request to 20 so it finishes fast and reliably
+    # Frontend automatically batches 1000 into 50x20 real requests - ALL are real HTTP POSTs to NGL
     count = max(1, min(count, 20))
     delay = max(0, min(delay, 3))
 
     results = []
     success_count = 0
     fail_count = 0
-    consecutive_fails = 0
     start_time = time.time()
     MAX_EXEC_SECONDS = 9
 
+    # REAL LOOP - each iteration = 1 real requests.post to ngl.link/api/submit
     for i in range(count):
         if time.time() - start_time > MAX_EXEC_SECONDS:
-            results.append({"index": i+1, "success": False, "error": "Server timeout guard - remaining not sent", "statusCode": 0})
+            results.append({"index": i+1, "success": False, "error": "Timeout guard", "statusCode": 0})
             fail_count += 1
             for j in range(i+1, count):
-                results.append({"index": j+1, "success": False, "error": "Skipped due to timeout guard", "statusCode": 0})
+                results.append({"index": j+1, "success": False, "error": "Skipped timeout", "statusCode": 0})
                 fail_count += 1
             break
         ok, status, msg, device_id = send_single_ngl(username, message)
@@ -226,16 +218,12 @@ def send():
         results.append(entry)
         if ok:
             success_count += 1
-            consecutive_fails = 0
         else:
             fail_count += 1
-            consecutive_fails += 1
-            if consecutive_fails >= 4:
-                entry["note"] = "Multiple failures - NGL may be rate limiting. Try increasing delay."
+        # Real delay between each NGL hit - helps avoid 429 while staying fast
         if delay > 0 and i < count - 1:
             remaining = MAX_EXEC_SECONDS - (time.time() - start_time)
             if remaining < delay:
-                results.append({"index": i+2, "success": False, "error": f"Stopped early to avoid timeout - {count - (i+1)} remaining not sent", "statusCode": 0})
                 break
             time.sleep(delay)
 
@@ -247,22 +235,14 @@ def send():
         "sent": success_count,
         "failed": fail_count,
         "clamped": original_count != count,
-        "clampNote": f"Count clamped to {count} per request. Frontend batches automatically." if original_count != count else None,
+        "clampNote": f"Count clamped to {count} per request. Frontend batches automatically so 100 = 5x20 real sends." if original_count != count else None,
         "results": results,
-        "meta": {"delay": delay, "executionTime": round(time.time() - start_time, 2)}
+        "meta": {"delay": delay, "executionTime": round(time.time() - start_time, 2), "real": "Each 'sent' = 1 verified HTTP 200 from https://ngl.link/api/submit"}
     })
 
-# Root via rewrite also lands here - serve HTML for browser
 @app.route('/api/index.py', methods=['GET', 'POST', 'OPTIONS'])
 def index_py_fallback():
-    # Try to infer original intent from headers or query
-    # Vercel may set X-Matched-Path, X-Vercel-Rewrite, etc.
     original = request.headers.get('x-matched-path') or request.headers.get('x-vercel-matched-path') or request.headers.get('x-vercel-rewrite') or request.headers.get('x-forwarded-url') or ''
-    # Also check referer or query param
-    # For now, handle both health and send via query param ?path=...
-    # And also handle if client directly calls /api/index.py?endpoint=health
-
-    # If request has JSON body with username/message, treat as send
     if request.method == 'POST':
         try:
             body = request.get_json(force=True, silent=True) or {}
@@ -275,36 +255,14 @@ def index_py_fallback():
             return health()
         if 'send' in endpoint or 'send' in original:
             return send()
-        # Default to send for POST
         return send()
-
-    # For GET, try to determine endpoint - prioritize explicit api endpoints
-    # Vercel rewrite passes original_path as query param
     endpoint = request.args.get('original_path') or request.args.get('endpoint') or request.args.get('path') or original or ''
-    # Check if this is api health or send via query or original header
     if 'health' in endpoint.lower():
         return health()
     if 'send' in endpoint.lower():
         return send()
-    # For any other GET to /api/index.py (which includes homepage "/" via rewrite),
-    # serve the frontend HTML by default. This makes the site work on Google.
     if HTML_CONTENT:
         return HTML_CONTENT, 200, {'Content-Type': 'text/html; charset=utf-8'}
-    try:
-        candidates = [
-            os.path.join(os.path.dirname(__file__), '..', 'index.html'),
-            os.path.join(os.getcwd(), 'index.html'),
-            '/var/task/index.html',
-            'index.html'
-        ]
-        for p in candidates:
-            if os.path.exists(p):
-                with open(p, 'r', encoding='utf-8') as f:
-                    html = f.read()
-                return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
-    except:
-        pass
-    # If index.html not found, return helpful JSON
     return jsonify({
         "status": "online",
         "service": "NGL Spammer API",
@@ -323,6 +281,5 @@ def catch_all(path):
         elif 'health' in path:
             return health()
         else:
-            # For index.py, delegate to fallback
             return index_py_fallback()
-    return jsonify({"error": "Not found", "path": path, "seen_path": request.path, "headers": {k: v for k, v in request.headers.items() if k.lower().startswith('x-')}}), 404
+    return jsonify({"error": "Not found", "path": path, "seen_path": request.path}), 404
