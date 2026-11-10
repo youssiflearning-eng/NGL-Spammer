@@ -7,28 +7,37 @@ import os
 
 app = Flask(__name__)
 
-# Pre-load HTML at startup so we can serve it even if filesystem layout differs in Vercel
+# Pre-load HTML at startup - try embedded file first, then filesystem
 HTML_CONTENT = None
 try:
-    _candidates = [
-        os.path.join(os.path.dirname(__file__), '..', 'index.html'),
-        os.path.join(os.getcwd(), 'index.html'),
-        '/var/task/index.html',
-        os.path.join('/var/task', 'public', 'index.html'),
-        'index.html',
-        os.path.join(os.path.dirname(__file__), '../public/index.html'),
-    ]
-    for _p in _candidates:
-        if os.path.exists(_p):
-            with open(_p, 'r', encoding='utf-8') as _f:
-                HTML_CONTENT = _f.read()
-            break
-    # If still not found, try to list directory for debugging (not shown to user)
-    if not HTML_CONTENT:
-        # Fallback minimal HTML - will be replaced if file exists at request time
-        HTML_CONTENT = None
-except Exception:
-    HTML_CONTENT = None
+    from api.html_content import HTML_CONTENT as _EMBEDDED_HTML
+    HTML_CONTENT = _EMBEDDED_HTML
+except:
+    try:
+        from html_content import HTML_CONTENT as _EMBEDDED_HTML2
+        HTML_CONTENT = _EMBEDDED_HTML2
+    except:
+        pass
+if not HTML_CONTENT:
+    try:
+        _candidates = [
+            os.path.join(os.path.dirname(__file__), '..', 'index.html'),
+            os.path.join(os.getcwd(), 'index.html'),
+            '/var/task/index.html',
+            os.path.join('/var/task', 'public', 'index.html'),
+            'index.html',
+            os.path.join(os.path.dirname(__file__), '../public/index.html'),
+        ]
+        for _p in _candidates:
+            if os.path.exists(_p):
+                with open(_p, 'r', encoding='utf-8') as _f:
+                    HTML_CONTENT = _f.read()
+                break
+    except Exception:
+        pass
+if not HTML_CONTENT:
+    # Minimal fallback if everything fails
+    HTML_CONTENT = "<html><body><h1>NGL Spammer</h1><p>API is online at /api/send</p></body></html>"
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
