@@ -102,6 +102,25 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
+# Serve frontend at root
+@app.route('/', methods=['GET'])
+def serve_index():
+    try:
+        candidates = [
+            os.path.join(os.path.dirname(__file__), '..', 'index.html'),
+            os.path.join(os.getcwd(), 'index.html'),
+            '/var/task/index.html',
+            'index.html'
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                with open(p, 'r', encoding='utf-8') as f:
+                    html = f.read()
+                return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
+        return "index.html not found", 404
+    except Exception as e:
+        return f"Error loading page: {e}", 500
+
 @app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health():
     if request.method == 'OPTIONS':
@@ -120,18 +139,15 @@ def send():
             "usage": "POST with JSON: {\"username\": \"ngluser\", \"message\": \"hello\", \"count\": 5, \"delay\": 0.5}",
             "limits": {"maxCountPerRequest": 20, "maxDelay": 3}
         })
-    # POST
     try:
         body = request.get_json(force=True) or {}
     except:
         return jsonify({"success": False, "error": "Invalid JSON body"}), 400
 
     username = str(body.get('username', '')).strip().lstrip('@').lstrip('/')
-    # handle case where username passed as full url
     if 'ngl.link/' in username:
         username = username.split('ngl.link/')[-1].split('/')[0].split('?')[0]
     username = username.strip()
-
     message = str(body.get('message', '')).strip()
     try:
         count = int(body.get('count', body.get('amount', 1)))
@@ -201,17 +217,59 @@ def send():
         "meta": {"delay": delay, "executionTime": round(time.time() - start_time, 2)}
     })
 
-# For Vercel, expose app
-# Vercel will look for `app` variable
+# Handle Vercel's new rewrite behavior where destination path is used
+# When Vercel rewrites /api/health -> /api/index.py, Flask sees /api/index.py
+# We need to handle that by inspecting original path from headers
+@app.route('/api/index.py', methods=['GET', 'POST', 'OPTIONS'])
+def index_py_fallback():
+    # Try to infer original intent from headers or query
+    # Vercel may set X-Matched-Path, X-Vercel-Rewrite, etc.
+    original = request.headers.get('x-matched-path') or request.headers.get('x-vercel-matched-path') or request.headers.get('x-vercel-rewrite') or request.headers.get('x-forwarded-url') or ''
+    # Also check referer or query param
+    # For now, handle both health and send via query param ?path=...
+    # And also handle if client directly calls /api/index.py?endpoint=health
+
+    # If request has JSON body with username/message, treat as send
+    if request.method == 'POST':
+        try:
+            body = request.get_json(force=True, silent=True) or {}
+            if body.get('username') or body.get('message'):
+                return send()
+        except:
+            pass
+        # Also check query string for endpoint hint
+        endpoint = request.args.get('endpoint') or request.args.get('path') or ''
+        if 'health' in endpoint or 'health' in original:
+            return health()
+        # Default to send for POST
+        return send()
+
+    # For GET, try to determine endpoint
+    endpoint = request.args.get('endpoint') or request.args.get('path') or original or request.headers.get('x-vercel-id', '')
+    # If original contains health, return health, else return send info
+    if 'health' in endpoint.lower():
+        return health()
+    # Fallback: if no body, return generic send info
+    # Check Accept header or just return health for debugging
+    return jsonify({
+        "debug": True,
+        "note": "Hit /api/index.py fallback - Vercel rewrite destination path",
+        "path_seen": request.path,
+        "url": request.url,
+        "original_header": original,
+        "headers": {k: v for k, v in request.headers.items() if k.lower().startswith('x-') or k.lower() in ['host','referer','x-matched-path','x-vercel-matched-path']},
+        "args": request.args.to_dict(),
+        "method": request.method
+    })
 
 @app.route('/api/<path:path>', methods=['GET','POST','OPTIONS'])
 def catch_all(path):
-    # Handle legacy routes that pointed to old api/send.py handlers
-    # If path is send or health, redirect to our handlers
-    if path in ['send', 'send.py', 'health', 'health.py']:
-        # delegate to appropriate
+    if path in ['send', 'send.py', 'health', 'health.py', 'index.py']:
         if 'send' in path:
             return send()
-        else:
+        elif 'health' in path:
             return health()
-    return jsonify({"error": "Not found", "path": path}), 404
+        else:
+            # For index.py, delegate to fallback
+            return index_py_fallback()
+    return jsonify({"error": "Not found", "path": path, "seen_path": request.path, "headers": {k: v for k, v in request.headers.items() if k.lower().startswith('x-')}}), 404
