@@ -7,6 +7,29 @@ import os
 
 app = Flask(__name__)
 
+# Pre-load HTML at startup so we can serve it even if filesystem layout differs in Vercel
+HTML_CONTENT = None
+try:
+    _candidates = [
+        os.path.join(os.path.dirname(__file__), '..', 'index.html'),
+        os.path.join(os.getcwd(), 'index.html'),
+        '/var/task/index.html',
+        os.path.join('/var/task', 'public', 'index.html'),
+        'index.html',
+        os.path.join(os.path.dirname(__file__), '../public/index.html'),
+    ]
+    for _p in _candidates:
+        if os.path.exists(_p):
+            with open(_p, 'r', encoding='utf-8') as _f:
+                HTML_CONTENT = _f.read()
+            break
+    # If still not found, try to list directory for debugging (not shown to user)
+    if not HTML_CONTENT:
+        # Fallback minimal HTML - will be replaced if file exists at request time
+        HTML_CONTENT = None
+except Exception:
+    HTML_CONTENT = None
+
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
@@ -102,9 +125,12 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
-# Serve frontend at root
+# Serve frontend at root - use preloaded HTML_CONTENT for reliability on Vercel
 @app.route('/', methods=['GET'])
 def serve_index():
+    # Use preloaded HTML if available (loaded at import time)
+    if HTML_CONTENT:
+        return HTML_CONTENT, 200, {'Content-Type': 'text/html; charset=utf-8'}
     try:
         candidates = [
             os.path.join(os.path.dirname(__file__), '..', 'index.html'),
@@ -253,7 +279,8 @@ def index_py_fallback():
         return send()
     # For any other GET to /api/index.py (which includes homepage "/" via rewrite),
     # serve the frontend HTML by default. This makes the site work on Google.
-    # We can detect API vs homepage by looking at Accept header or by defaulting to HTML.
+    if HTML_CONTENT:
+        return HTML_CONTENT, 200, {'Content-Type': 'text/html; charset=utf-8'}
     try:
         candidates = [
             os.path.join(os.path.dirname(__file__), '..', 'index.html'),
