@@ -1,547 +1,392 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NGL Spammer — Send Anonymous Messages via Web | Free & Fast</title>
-  <meta name="description" content="Free NGL Spammer tool — Send anonymous messages to any NGL.link username directly from your browser. Python-powered, no download, works on mobile & desktop. Use responsibly.">
-  <meta name="keywords" content="ngl spammer, ngl sender, ngl.link, anonymous messages, ngl spam tool, free ngl tool">
-  <meta name="author" content="NGL Spammer">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://ngl-spammer.vercel.app/">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="NGL Spammer — Anonymous Messages via Web">
-  <meta property="og:description" content="Send messages to any NGL.link user instantly from your browser. Fast, free, Python-powered.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://ngl-spammer.vercel.app/">
-  <meta property="og:image" content="https://ngl-spammer.vercel.app/og-image.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NGL Spammer — Web Tool">
-  <meta name="twitter:description" content="Python-powered NGL message sender — works on Google, mobile & desktop.">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] },
-          animation: { float: 'float 6s ease-in-out infinite', glow: 'glow 2s ease-in-out infinite alternate' }
-        }
-      }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGL Sender — Anonymous Messages via Web</title>
+<meta name="description" content="Send anonymous messages to any NGL.link username directly from your browser. Python-powered, fast and simple.">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Geist:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter','sans-serif'] },
     }
-  </script>
-  <style>
-    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
-    @keyframes glow { from { box-shadow: 0 0 20px rgba(168,85,247,0.4)} to { box-shadow: 0 0 40px rgba(236,72,153,0.6)} }
-    @keyframes slideIn { from { opacity:0; transform: translateY(10px)} to { opacity:1; transform: translateY(0)} }
-    .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.5); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-    input[type=range] { accent-color: #a855f7; }
-  </style>
+  }
+}
+</script>
+<style>
+  * { -webkit-font-smoothing: antialiased; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(12px)} to {opacity:1; transform:translateY(0)} }
+  @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+  @keyframes scaleIn { from {opacity:0; transform: scale(0.96)} to {opacity:1; transform:scale(1)} }
+  @keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+  @keyframes pulseDot { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+  @keyframes checkDraw { from { stroke-dashoffset: 24 } to { stroke-dashoffset: 0 } }
+  .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .fade-up-delay-1 { animation: fadeUp 0.6s 0.08s cubic-bezier(0.16,1,0.3,1) both; }
+  .fade-up-delay-2 { animation: fadeUp 0.6s 0.16s cubic-bezier(0.16,1,0.3,1) both; }
+  .card-shadow { box-shadow: 0 1px 2px rgba(16,24,40,0.06), 0 8px 24px rgba(16,24,40,0.06), 0 24px 48px rgba(16,24,40,0.04); }
+  .input-focus:focus { box-shadow: 0 0 0 4px rgba(17,24,39,0.06); border-color: #111827; }
+  .input-error { border-color: #ef4444 !important; box-shadow: 0 0 0 4px rgba(239,68,68,0.08) !important; }
+  .btn-hover { transition: all 0.2s cubic-bezier(0.16,1,0.3,1); }
+  .btn-hover:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(17,24,39,0.18); }
+  .btn-hover:active { transform: translateY(0); }
+  .number-btn { transition: all 0.15s ease; }
+  .number-btn:hover { background: #f1f5f9; }
+  .number-btn:active { transform: scale(0.96); }
+  .shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%); background-size: 400% 100%; animation: shimmer 1.2s ease infinite; }
+  .custom-scrollbar::-webkit-scrollbar { width:4px; height:4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:10px; }
+</style>
 </head>
-<body class="bg-[#0a0a0f] text-white font-sans antialiased overflow-x-hidden">
-  <!-- Background effects -->
-  <div class="fixed inset-0 -z-10">
-    <div class="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#1a102e] to-[#0a0a0f]"></div>
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-indigo-600/20 rounded-full blur-[120px]"></div>
-    <div class="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[100px]"></div>
-    <div class="absolute bottom-0 right-0 w-[800px] h-[800px] bg-fuchsia-600/10 rounded-full blur-[120px]"></div>
-    <!-- Grid -->
-    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px); background-size: 50px 50px;"></div>
+<body class="bg-[#f8fafc] text-[#0f172a] font-sans min-h-screen flex flex-col">
+  <!-- Subtle background pattern -->
+  <div class="fixed inset-0 -z-10 pointer-events-none">
+    <div class="absolute inset-0 bg-[#f8fafc]"></div>
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#0f172a 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-[#e2e8f0]/40 to-transparent rounded-full blur-3xl"></div>
   </div>
 
-  <!-- Navbar -->
-  <nav class="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a0f]/80 glass">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-[64px]">
+  <!-- Header -->
+  <header class="w-full max-w-[720px] mx-auto px-4 sm:px-6 pt-8 pb-4">
+    <div class="flex items-center justify-between fade-up">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-fuchsia-600 flex items-center justify-center font-black text-sm">NGL</div>
-        <span class="font-black text-lg tracking-tight">NGL SPAMMER</span>
-        <span class="hidden sm:inline-flex ml-2 px-2.5 py-1 rounded-full bg-white/10 text-xs font-semibold border border-white/10">v2.0 • Python</span>
-      </div>
-      <div class="hidden md:flex items-center gap-6 text-sm">
-        <a href="#tool" class="text-white/70 hover:text-white transition">Tool</a>
-        <a href="#how" class="text-white/70 hover:text-white transition">How it works</a>
-        <a href="#faq" class="text-white/70 hover:text-white transition">FAQ</a>
-        <a href="https://github.com/youssiflearning-eng/NGL-Spammer" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black font-semibold hover:bg-white/90 transition text-xs">★ GitHub</a>
-      </div>
-      <div class="flex items-center gap-2 md:hidden">
-        <a href="https://github.com/youssiflearning-eng/NGL-Spammer" target="_blank" class="px-3 py-1.5 rounded-full bg-white text-black text-xs font-bold">GitHub</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <header class="relative pt-10 sm:pt-16 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
-      <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/20 text-xs font-semibold mb-4">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Python backend • Vercel deployed • Works on Google
+        <div class="w-9 h-9 rounded-xl bg-[#0f172a] flex items-center justify-center">
+          <span class="text-white font-extrabold text-[13px] tracking-tight">ngl</span>
         </div>
-        <h1 class="text-[2.2rem] sm:text-5xl lg:text-[3.2rem] font-black leading-[0.95] tracking-tighter">
-          Send to <span class="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">ngl.link</span><br>
-          directly from Google
-        </h1>
-        <p class="mt-4 text-white/60 text-[15px] sm:text-lg leading-relaxed max-w-xl">
-          The original Python CLI <span class="text-white font-semibold">NGLSpamer.py</span> — rebuilt as a fast web app. No download, no setup, no proxy needed. Just open, type, and send. Mobile ready.
-        </p>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a href="#tool" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 font-bold text-sm hover:opacity-90 transition shadow-lg shadow-violet-600/20">🚀 Open Tool — It's Free ↓</a>
-          <span class="inline-flex items-center gap-2 px-4 py-3 rounded-full bg-white/5 border border-white/10 text-sm font-medium">⚡ Delay control • Auto device rotation • Rate-limit safe</span>
-        </div>
-        <div class="mt-6 flex items-center gap-4 text-xs text-white/40">
-          <span class="flex items-center gap-1.5">✓ Google indexed</span>
-          <span class="flex items-center gap-1.5">✓ Vercel hosted</span>
-          <span class="flex items-center gap-1.5">✓ Python API</span>
+        <div>
+          <div class="text-[14px] font-bold tracking-tight leading-none">NGL Sender</div>
+          <div class="text-[11px] font-medium tracking-widest text-[#64748b] uppercase">Python • Vercel</div>
         </div>
       </div>
-
-      <!-- Preview card -->
-      <div class="relative lg:h-[420px]">
-        <div class="absolute inset-0 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-[28px] blur-[30px] opacity-20"></div>
-        <div class="relative bg-[#14141b] border border-white/10 rounded-[24px] p-6 sm:p-7 shadow-2xl">
-          <div class="flex items-center justify-between mb-5">
-            <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
-            <span class="text-xs font-mono text-white/40">ngl.link/api/submit • POST</span>
-          </div>
-          <div class="space-y-3 font-mono text-xs">
-            <div class="flex items-center gap-2 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> API ONLINE — vercel.app</div>
-            <div class="bg-black/50 rounded-xl p-3 border border-white/5">
-              <div class="text-white/30">POST /api/send</div>
-              <div class="mt-2 text-violet-300">{</div>
-              <div class="pl-4 text-white/80">"username": <span class="text-emerald-300">"ngl_username"</span>,</div>
-              <div class="pl-4 text-white/80">"question": <span class="text-emerald-300">"your message"</span>,</div>
-              <div class="pl-4 text-white/80">"deviceId": <span class="text-fuchsia-300">auto-generated</span></div>
-              <div class="text-violet-300">}</div>
-            </div>
-            <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="bg-white/[0.04] border border-white/5 rounded-xl py-3"><div class="text-lg font-black">∞</div><div class="text-[10px] text-white/40 uppercase tracking-widest">Messages</div></div>
-              <div class="bg-white/[0.04] border border-white/5 rounded-xl py-3"><div class="text-lg font-black">0.1s</div><div class="text-[10px] text-white/40 uppercase tracking-widest">Fastest</div></div>
-              <div class="bg-white/[0.04] border border-white/5 rounded-xl py-3"><div class="text-lg font-black">24/7</div><div class="text-[10px] text-white/40 uppercase tracking-widest">Online</div></div>
-            </div>
-            <div class="flex items-center gap-2 text-white/30 text-[11px]"><span>🔒 No login • No data stored • Open source</span></div>
-          </div>
-        </div>
+      <div class="flex items-center gap-2">
+        <span id="apiDot" class="w-2 h-2 rounded-full bg-[#e2e8f0]"></span>
+        <span id="apiStatus" class="text-[11px] font-semibold tracking-wide text-[#64748b] uppercase">Checking</span>
+        <a href="https://github.com/youssiflearning-eng/NGL-Spammer" target="_blank" class="hidden sm:inline-flex ml-2 px-3 py-1.5 rounded-full bg-white border border-[#e2e8f0] text-[11px] font-semibold hover:bg-[#f8fafc] transition">GitHub ↗</a>
       </div>
     </div>
   </header>
 
-  <!-- Tool Section -->
-  <section id="tool" class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-10">
-    <div class="grid lg:grid-cols-[1.3fr_0.7fr] gap-6">
-      <!-- Main form card -->
-      <div class="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] overflow-hidden">
-        <div class="px-6 sm:px-8 py-6 border-b border-white/5 bg-gradient-to-r from-violet-600/10 to-fuchsia-600/10">
+  <!-- Main Single Page Card -->
+  <main class="flex-1 w-full max-w-[720px] mx-auto px-4 sm:px-6 pb-12">
+    <div class="bg-white rounded-[24px] border border-[#e2e8f0] card-shadow overflow-hidden fade-up-delay-1">
+      <!-- Card header -->
+      <div class="px-6 sm:px-8 pt-8 pb-6">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0]">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-[pulseDot_2s_ease_infinite]"></span>
+          <span class="text-[10px] font-bold tracking-widest text-[#475569] uppercase">Live • Python Backend</span>
+        </div>
+        <h1 class="mt-4 text-[26px] sm:text-[28px] font-[800] tracking-[-0.03em] leading-[1.1]">Send anonymous<br>message</h1>
+        <p class="mt-2 text-[13px] leading-relaxed text-[#64748b] max-w-[420px]">Enter the NGL username, your message, and how many times to send. Powered by Python on Vercel — works on any device.</p>
+      </div>
+
+      <!-- Form -->
+      <form id="mainForm" class="px-6 sm:px-8 pb-8 space-y-5">
+        <!-- Username -->
+        <div class="space-y-2">
+          <label class="text-[11px] font-bold tracking-widest text-[#334155] uppercase">NGL Username <span class="text-[#ef4444]">*</span></label>
+          <div class="relative group">
+            <div class="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+              <span class="text-[12px] font-medium text-[#94a3b8]">ngl.link/</span>
+            </div>
+            <input id="username" required autocomplete="off" placeholder="johndoe" class="w-full pl-[82px] pr-10 py-3.5 rounded-xl bg-white border border-[#e2e8f0] text-[14px] font-medium placeholder:text-[#cbd5e1] focus:outline-none input-focus transition">
+            <div id="userCheck" class="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#f0fdf4] border border-[#bbf7d0] hidden items-center justify-center">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6L4.8 8.5L9.5 3.5" stroke="#10b981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <p class="text-[11px] text-[#94a3b8]">Example: <span class="font-mono text-[#475569] bg-[#f8fafc] border border-[#e2e8f0] px-1 py-0.5 rounded">ngl.link/johndoe</span> → type <span class="font-medium text-[#0f172a]">johndoe</span> only</p>
+        </div>
+
+        <!-- Message -->
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <h2 class="text-xl font-black tracking-tight">NGL SENDER — WEB TOOL</h2>
-            <span id="apiStatus" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-300 text-xs font-semibold">● checking API</span>
+            <label class="text-[11px] font-bold tracking-widest text-[#334155] uppercase">Message <span class="text-[#ef4444]">*</span></label>
+            <span id="charCount" class="text-[11px] font-medium font-mono text-[#94a3b8]">0 / 300</span>
           </div>
-          <p class="text-sm text-white/50 mt-1">Python backend on Vercel — same logic as <code class="px-1.5 py-0.5 bg-white/10 rounded text-xs font-mono">NGLSpamer.py</code>, now with a browser UI.</p>
-        </div>
-
-        <form id="spamForm" class="p-6 sm:p-8 space-y-5">
-          <div>
-            <label class="block text-xs font-bold tracking-widest text-white/60 mb-2">NGL USERNAME <span class="text-amber-300/80 font-normal normal-case">* required</span></label>
-            <div class="relative">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 font-mono text-sm">ngl.link/</span>
-              <input id="username" required placeholder="yourfriend" class="w-full pl-[84px] pr-4 py-3.5 rounded-xl bg-[#0f0f14] border border-white/10 focus:border-violet-500/50 focus:outline-none focus:ring-4 focus:ring-violet-500/10 text-sm font-medium placeholder:text-white/20" />
-              <span id="userHint" class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 hidden">✓ valid</span>
-            </div>
-            <p class="text-[11px] text-white/30 mt-1.5">Enter only the username part — e.g. if link is <span class="text-white/60 font-mono">ngl.link/johndoe</span> type <span class="text-white/60 font-mono">johndoe</span></p>
+          <div class="relative">
+            <textarea id="message" required maxlength="300" rows="4" placeholder="Write your anonymous message here..." class="w-full px-3.5 py-3 rounded-xl bg-white border border-[#e2e8f0] text-[14px] font-[450] leading-relaxed placeholder:text-[#cbd5e1] focus:outline-none input-focus transition resize-none"></textarea>
           </div>
-
-          <div>
-            <label class="block text-xs font-bold tracking-widest text-white/60 mb-2">MESSAGE <span id="charCount" class="float-right font-mono text-white/40">0 / 300</span></label>
-            <textarea id="message" required maxlength="300" rows="3" placeholder="Type your anonymous message here... (be kind!)" class="w-full px-4 py-3.5 rounded-xl bg-[#0f0f14] border border-white/10 focus:border-violet-500/50 focus:outline-none focus:ring-4 focus:ring-violet-500/10 text-sm font-medium placeholder:text-white/20 resize-none"></textarea>
-            <div class="flex gap-2 mt-2 flex-wrap">
-              <button type="button" data-quick="Hey! How are you? 😊" class="quick-btn px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium transition">Hey! How are you?</button>
-              <button type="button" data-quick="You are amazing! Keep going 💜" class="quick-btn px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium transition">You are amazing!</button>
-              <button type="button" data-quick="Confession: I like you 👀" class="quick-btn px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium transition">Confession 👀</button>
-            </div>
-          </div>
-
-          <div class="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label class="block text-xs font-bold tracking-widest text-white/60 mb-2">COUNT <span id="countVal" class="ml-2 px-2 py-0.5 rounded-full bg-violet-600 text-white text-xs font-black">10</span></label>
-              <input id="count" type="range" min="1" max="100" value="10" class="w-full">
-              <div class="flex justify-between text-[10px] font-mono text-white/30 mt-1"><span>1</span><span>50</span><span>100</span></div>
-              <p class="text-[11px] text-white/30 mt-1">For <span class="text-white/60">1–20</span> we send server-side. For <span class="text-white/60">20+</span> we auto-batch to avoid Vercel timeout.</p>
-            </div>
-            <div>
-              <label class="block text-xs font-bold tracking-widest text-white/60 mb-2">DELAY (seconds) <span id="delayVal" class="ml-2 px-2 py-0.5 rounded-full bg-fuchsia-600 text-white text-xs font-black">0.50s</span></label>
-              <input id="delay" type="range" min="0" max="3" step="0.1" value="0.5" class="w-full">
-              <div class="flex justify-between text-[10px] font-mono text-white/30 mt-1"><span>0 (fastest)</span><span>1.5</span><span>3s safe</span></div>
-              <p class="text-[11px] text-white/30 mt-1">Higher delay = less chance of NGL rate-limit.</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-3 bg-amber-500/5 border border-amber-500/15 rounded-xl px-4 py-3">
-            <input type="checkbox" id="consent" class="w-4 h-4 rounded accent-violet-600">
-            <label for="consent" class="text-xs text-white/70 leading-relaxed">I have permission to message this user and will not use this for harassment. I understand NGL may rate-limit after many messages.</label>
-          </div>
-
-          <div class="flex gap-3">
-            <button id="sendBtn" type="submit" class="flex-1 inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 font-black text-sm hover:opacity-95 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-600/20">
-              <span id="sendText">▶ SEND MESSAGES</span>
-              <span id="sendSpinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            </button>
-            <button id="stopBtn" type="button" class="hidden px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 font-bold text-sm hover:bg-white/10 transition">⏹ Stop</button>
-          </div>
-
-          <!-- progress -->
-          <div id="progressWrap" class="hidden">
-            <div class="flex justify-between text-xs mb-2">
-              <span class="font-bold text-white/80"><span id="progSent">0</span> sent • <span id="progFailed">0</span> failed • <span id="progTotal">0</span> total</span>
-              <span id="progPct" class="font-mono text-white/50">0%</span>
-            </div>
-            <div class="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-              <div id="progressBar" class="h-full bg-gradient-to-r from-violet-600 to-fuchsia-600 transition-all duration-300" style="width:0%"></div>
-            </div>
-          </div>
-
-          <!-- live log -->
-          <div id="logBox" class="hidden bg-[#0a0a0f] border border-white/10 rounded-xl overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5 bg-white/[0.02]">
-              <span class="text-[11px] font-bold tracking-widest text-white/50">LIVE LOG</span>
-              <div class="flex gap-2">
-                <button type="button" id="copyLog" class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition">Copy</button>
-                <button type="button" id="clearLog" class="text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition">Clear</button>
-              </div>
-            </div>
-            <div id="logContent" class="h-[220px] overflow-y-auto p-3 font-mono text-xs leading-relaxed custom-scrollbar space-y-1"></div>
-          </div>
-
-          <div id="resultBanner" class="hidden rounded-xl p-4 border"></div>
-        </form>
-      </div>
-
-      <!-- Side panel -->
-      <div class="space-y-6">
-        <div class="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-600 rounded-[24px] p-[1px]">
-          <div class="bg-[#14141b] rounded-[23px] p-6">
-            <h3 class="font-black text-sm tracking-tight">⚡ HOW TO FIND USERNAME</h3>
-            <ol class="mt-3 space-y-2 text-sm text-white/60 list-decimal list-inside">
-              <li>Open <a href="https://ngl.link" target="_blank" class="text-violet-300 hover:underline">ngl.link</a> profile</li>
-              <li>Copy link: <span class="font-mono bg-white/10 px-1.5 py-0.5 rounded text-white/80">ngl.link/username</span></li>
-              <li>Paste only <span class="font-mono text-white">username</span> above</li>
-              <li>Hit Send — tool runs Python <code class="font-mono text-xs">POST /api/submit</code></li>
-            </ol>
-            <div class="mt-4 p-3 rounded-xl bg-white/5 border border-white/10 text-xs leading-relaxed text-white/50">
-              <span class="text-white font-bold">Pro tip:</span> Use delay ≥1s for 20+ messages to avoid <span class="text-amber-300">429 rate-limit</span>.
-            </div>
+          <div class="flex gap-1.5 flex-wrap">
+            <button type="button" data-quick="Hey! How are you? 😊" class="quick-btn px-3 py-1 rounded-full bg-[#f8fafc] hover:bg-[#f1f5f9] border border-[#e2e8f0] text-[11px] font-medium transition">Hey! How are you? 😊</button>
+            <button type="button" data-quick="You inspire me! Keep going 💙" class="quick-btn px-3 py-1 rounded-full bg-[#f8fafc] hover:bg-[#f1f5f9] border border-[#e2e8f0] text-[11px] font-medium transition">You inspire me 💙</button>
+            <button type="button" data-quick="Confession: I like you 👀" class="quick-btn px-3 py-1 rounded-full bg-[#f8fafc] hover:bg-[#f1f5f9] border border-[#e2e8f0] text-[11px] font-medium transition">Confession 👀</button>
           </div>
         </div>
 
-        <div class="bg-white/[0.03] border border-white/10 rounded-[24px] p-6">
-          <h3 class="font-black text-sm">🔧 TECHNICAL</h3>
-          <div class="mt-4 space-y-3 text-xs font-mono">
-            <div class="flex justify-between"><span class="text-white/40">Runtime</span><span class="text-white">python3.9 • Vercel</span></div>
-            <div class="flex justify-between"><span class="text-white/40">Endpoint</span><span class="text-violet-300">/api/send [POST]</span></div>
-            <div class="flex justify-between"><span class="text-white/40">Source</span><span class="text-white">NGLSpamer.py → api/</span></div>
-            <div class="flex justify-between"><span class="text-white/40">Device ID</span><span class="text-white">UUID v4 random</span></div>
-            <div class="pt-3 border-t border-white/5 flex gap-2">
-              <span id="healthDot" class="w-2 h-2 rounded-full bg-zinc-600 mt-1"></span>
-              <span id="healthText" class="text-white/50 leading-relaxed">Checking Python API health…</span>
+        <!-- Amount -->
+        <div class="space-y-2">
+          <label class="text-[11px] font-bold tracking-widest text-[#334155] uppercase">Amount <span class="text-[#ef4444]">*</span></label>
+          <div class="flex items-center gap-3">
+            <div class="flex-1 relative flex items-center bg-white border border-[#e2e8f0] rounded-xl overflow-hidden focus-within:border-[#0f172a] focus-within:shadow-[0_0_0_4px_rgba(15,23,42,0.06)] transition">
+              <button type="button" id="minusBtn" class="number-btn w-11 h-[46px] flex items-center justify-center border-r border-[#e2e8f0] text-[#475569]">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+              <input id="amount" type="number" min="1" max="100" value="5" class="flex-1 h-[46px] text-center text-[15px] font-bold bg-transparent border-0 focus:outline-none focus:ring-0">
+              <button type="button" id="plusBtn" class="number-btn w-11 h-[46px] flex items-center justify-center border-l border-[#e2e8f0] text-[#475569]">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3V11M3 7H11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="hidden sm:flex items-center gap-1.5 text-[11px] font-medium text-[#94a3b8]">
+              <span class="px-2 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0]">1</span>
+              <span>—</span>
+              <span class="px-2 py-1 rounded-full bg-[#f1f5f9] border border-[#e2e8f0]">100</span>
             </div>
           </div>
-          <div class="mt-4 grid grid-cols-2 gap-2">
-            <button onclick="testApi()" class="py-2 rounded-xl bg-white text-black font-bold text-xs hover:bg-white/90 transition">Test API</button>
-            <a href="/api/send" target="_blank" class="py-2 rounded-xl bg-white/5 border border-white/10 font-bold text-xs text-center hover:bg-white/10 transition">View JSON →</a>
+          <p class="text-[11px] text-[#94a3b8]">We’ll batch automatically to stay within Vercel limits.</p>
+        </div>
+
+        <!-- Consent -->
+        <label class="flex items-start gap-3 p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] cursor-pointer hover:bg-[#f1f5f9] transition group">
+          <input type="checkbox" id="consent" class="mt-0.5 w-4 h-4 rounded border-[#cbd5e1] text-[#0f172a] focus:ring-0 focus:ring-offset-0">
+          <span class="text-[11px] leading-relaxed text-[#475569] group-hover:text-[#334155]">I have permission to message this user and will use this responsibly. I understand NGL may limit after many messages.</span>
+        </label>
+
+        <!-- Action -->
+        <button id="sendBtn" type="submit" class="btn-hover w-full h-[48px] rounded-xl bg-[#0f172a] text-white text-[13px] font-bold tracking-wide flex items-center justify-center gap-2 hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed">
+          <span id="sendLabel">Send messages</span>
+          <svg id="sendArrow" width="14" height="14" viewBox="0 0 14 14" fill="none" class="opacity-70"><path d="M5 3L9 7L5 11" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="sendSpinner" class="hidden w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+        </button>
+
+        <!-- Result - only success count -->
+        <div id="resultCard" class="hidden rounded-2xl border overflow-hidden">
+          <div id="resultContent" class="px-5 py-5 flex items-center gap-4">
+            <!-- injected via JS -->
+          </div>
+          <div id="resultMeta" class="px-5 py-3 bg-[#f8fafc] border-t border-[#e2e8f0] flex items-center justify-between text-[11px] font-medium text-[#64748b]">
+            <span id="resultSub"></span>
+            <button type="button" id="resetBtn" class="px-3 py-1 rounded-full bg-white border border-[#e2e8f0] text-[#0f172a] font-semibold hover:bg-[#f8fafc] transition">Send again</button>
           </div>
         </div>
 
-        <div class="bg-amber-500/5 border border-amber-500/15 rounded-[24px] p-6">
-          <h3 class="font-black text-sm text-amber-300">⚠️ RESPONSIBLE USE</h3>
-          <p class="mt-2 text-xs leading-relaxed text-white/60">
-            This tool is for <span class="text-white font-semibold">educational and testing purposes</span>. Only send messages to people who expect them or with consent. Harassment violates NGL Terms. We do not log usernames or messages — everything runs via stateless Python serverless functions.
-          </p>
-          <p class="mt-3 text-[11px] text-white/30 font-mono">Original repo: youssiflearning-eng/NGL-Spammer • Ported to web by Python API.</p>
-        </div>
-
-        <div class="bg-white/[0.02] border border-white/10 rounded-[24px] p-6">
-          <h3 class="font-black text-sm">📣 SHARE</h3>
-          <p class="text-xs text-white/50 mt-2">Tool works directly in Google. Bookmark or share:</p>
-          <div class="mt-3 flex gap-2">
-            <input id="shareUrl" readonly class="flex-1 px-3 py-2 rounded-xl bg-black/30 border border-white/10 text-xs font-mono text-white/60" value="loading...">
-            <button onclick="copyShare()" class="px-4 py-2 rounded-xl bg-violet-600 font-bold text-xs hover:bg-violet-500 transition">Copy</button>
+        <!-- Minimal progress (thin bar) -->
+        <div id="progressWrap" class="hidden space-y-2">
+          <div class="flex items-center justify-between text-[11px] font-medium">
+            <span class="text-[#475569]"><span id="progressText">Sending…</span> <span id="progressCount" class="font-mono text-[#0f172a]">0 / 0</span></span>
+            <span id="progressPct" class="font-mono text-[#94a3b8]">0%</span>
           </div>
+          <div class="h-1.5 bg-[#f1f5f9] rounded-full overflow-hidden border border-[#e2e8f0]/60">
+            <div id="progressBar" class="h-full bg-[#0f172a] rounded-full transition-all duration-300" style="width:0%"></div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Card footer -->
+      <div class="px-6 sm:px-8 py-4 bg-[#f8fafc] border-t border-[#e2e8f0] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div class="flex items-center gap-2 text-[11px] text-[#94a3b8]">
+          <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+          <span class="font-medium">Python backend on Vercel</span>
+          <span class="hidden sm:inline">•</span>
+          <span>For educational use</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="https://ngl.link" target="_blank" class="text-[11px] font-semibold text-[#334155] hover:text-[#0f172a]">ngl.link ↗</a>
+          <span class="text-[#e2e8f0]">|</span>
+          <button type="button" onclick="copyLink()" class="text-[11px] font-semibold text-[#334155] hover:text-[#0f172a]">Copy link</button>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- How it works -->
-  <section id="how" class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-black tracking-tight">How this web version works</h2>
-    <div class="mt-6 grid md:grid-cols-3 gap-4">
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <div class="w-10 h-10 rounded-xl bg-violet-600/20 border border-violet-500/20 flex items-center justify-center text-lg">1</div>
-        <h3 class="font-bold mt-4">Original CLI → Web</h3>
-        <p class="text-sm text-white/50 mt-2 leading-relaxed">We ported <code class="text-white/80 font-mono bg-white/10 px-1 rounded">NGLSpamer.py</code> logic (deviceId, random UA, POST to <code class="font-mono">ngl.link/api/submit</code>) into a Python serverless function (<code class="font-mono">api/send.py</code>) hosted on Vercel.</p>
-      </div>
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <div class="w-10 h-10 rounded-xl bg-fuchsia-600/20 border border-fuchsia-500/20 flex items-center justify-center text-lg">2</div>
-        <h3 class="font-bold mt-4">Browser calls Python</h3>
-        <p class="text-sm text-white/50 mt-2 leading-relaxed">Your browser sends <code class="font-mono">POST /api/send</code> with JSON. Python rotates <span class="text-white">deviceId</span> & <span class="text-white">User-Agent</span> per request, just like the CLI loop, and respects your delay.</p>
-      </div>
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center text-lg">3</div>
-        <h3 class="font-bold mt-4">Visible on Google</h3>
-        <p class="text-sm text-white/50 mt-2 leading-relaxed">Site is SEO-optimized (meta, OG, sitemap, robots.txt) and served from Vercel's edge. Google crawls it, users find it, no app install needed.</p>
-      </div>
+    <!-- Tiny trust row (still single page, but adds pro feel) -->
+    <div class="mt-4 flex items-center justify-center gap-4 sm:gap-6 fade-up-delay-2">
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#94a3b8]"><span class="w-3.5 h-3.5 rounded-full bg-white border border-[#e2e8f0] flex items-center justify-center text-[10px]">✓</span> No login</span>
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#94a3b8]"><span class="w-3.5 h-3.5 rounded-full bg-white border border-[#e2e8f0] flex items-center justify-center text-[10px]">✓</span> Mobile ready</span>
+      <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#94a3b8]"><span class="w-3.5 h-3.5 rounded-full bg-white border border-[#e2e8f0] flex items-center justify-center text-[10px]">✓</span> Google indexed</span>
     </div>
-  </section>
+  </main>
 
-  <!-- FAQ -->
-  <section id="faq" class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-black tracking-tight">FAQ — Google searchable</h2>
-    <div class="mt-6 grid md:grid-cols-2 gap-4">
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <h3 class="font-bold text-sm">Is this the same as the GitHub NGL Spammer?</h3>
-        <p class="text-sm text-white/50 mt-2">Yes, same Python logic, just with a web UI. Original CLI required <code class="font-mono">pip install requests</code> + terminal. This version runs the same requests from Vercel's Python runtime.</p>
-      </div>
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <h3 class="font-bold text-sm">Does it need proxies?</h3>
-        <p class="text-sm text-white/50 mt-2">Web version doesn't — Vercel's IP rotates per region. Proxies option is disabled for simplicity. For heavy use, increase delay to avoid NGL's rate limit.</p>
-      </div>
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <h3 class="font-bold text-sm">Why Vercel + Python?</h3>
-        <p class="text-sm text-white/50 mt-2">You asked for Python that works via Google — Vercel supports Python serverless functions (<code class="font-mono">api/*.py</code>), so we keep Python logic and deploy it to a public HTTPS domain Google can index.</p>
-      </div>
-      <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
-        <h3 class="font-bold text-sm">Can I use it on mobile?</h3>
-        <p class="text-sm text-white/50 mt-2">Yes — it's responsive, works on iPhone/Android Chrome/Safari. Add to home screen for app-like use. No download.</p>
-      </div>
-    </div>
-  </section>
-
-  <footer class="mt-10 border-t border-white/5 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    <div class="flex flex-col sm:flex-row justify-between gap-4 text-xs text-white/30">
-      <div>© 2026 NGL Spammer Web • Built from <a href="https://github.com/youssiflearning-eng/NGL-Spammer" class="text-white/60 hover:text-white underline">NGL-Spammer repo</a> • Python + Vercel • For educational use only.</div>
-      <div class="flex gap-4"><a href="/api/health" target="_blank" class="hover:text-white">API Health</a><a href="https://vercel.com" target="_blank" class="hover:text-white">Deployed on Vercel ▲</a></div>
-    </div>
+  <footer class="mt-auto py-6 text-center">
+    <p class="text-[11px] font-medium text-[#94a3b8]">© 2026 NGL Sender • Built with Python • <a href="https://github.com/youssiflearning-eng/NGL-Spammer" class="underline hover:text-[#475569]">GitHub</a> • Deployed on Vercel ▲</p>
   </footer>
 
-  <script>
-    // Elements
-    const usernameEl = document.getElementById('username');
-    const messageEl = document.getElementById('message');
-    const countEl = document.getElementById('count');
-    const delayEl = document.getElementById('delay');
-    const countVal = document.getElementById('countVal');
-    const delayVal = document.getElementById('delayVal');
-    const charCount = document.getElementById('charCount');
-    const form = document.getElementById('spamForm');
-    const sendBtn = document.getElementById('sendBtn');
-    const sendText = document.getElementById('sendText');
-    const sendSpinner = document.getElementById('sendSpinner');
-    const stopBtn = document.getElementById('stopBtn');
-    const logBox = document.getElementById('logBox');
-    const logContent = document.getElementById('logContent');
-    const progressWrap = document.getElementById('progressWrap');
-    const progressBar = document.getElementById('progressBar');
-    const progSent = document.getElementById('progSent');
-    const progFailed = document.getElementById('progFailed');
-    const progTotal = document.getElementById('progTotal');
-    const progPct = document.getElementById('progPct');
-    const resultBanner = document.getElementById('resultBanner');
-    const apiStatus = document.getElementById('apiStatus');
-    const healthDot = document.getElementById('healthDot');
-    const healthText = document.getElementById('healthText');
-    const shareUrl = document.getElementById('shareUrl');
+<script>
+  const usernameEl = document.getElementById('username');
+  const messageEl = document.getElementById('message');
+  const amountEl = document.getElementById('amount');
+  const charCount = document.getElementById('charCount');
+  const minusBtn = document.getElementById('minusBtn');
+  const plusBtn = document.getElementById('plusBtn');
+  const form = document.getElementById('mainForm');
+  const sendBtn = document.getElementById('sendBtn');
+  const sendLabel = document.getElementById('sendLabel');
+  const sendArrow = document.getElementById('sendArrow');
+  const sendSpinner = document.getElementById('sendSpinner');
+  const resultCard = document.getElementById('resultCard');
+  const resultContent = document.getElementById('resultContent');
+  const resultSub = document.getElementById('resultSub');
+  const resetBtn = document.getElementById('resetBtn');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const progressCount = document.getElementById('progressCount');
+  const progressPct = document.getElementById('progressPct');
+  const apiDot = document.getElementById('apiDot');
+  const apiStatus = document.getElementById('apiStatus');
+  const userCheck = document.getElementById('userCheck');
 
-    shareUrl.value = location.href;
+  // Char count
+  messageEl.addEventListener('input', () => {
+    charCount.textContent = messageEl.value.length + ' / 300';
+    charCount.className = messageEl.value.length > 280 ? 'text-[11px] font-medium font-mono text-[#ef4444]' : 'text-[11px] font-medium font-mono text-[#94a3b8]';
+  });
+  // Quick messages
+  document.querySelectorAll('.quick-btn').forEach(b => b.addEventListener('click', () => {
+    messageEl.value = b.dataset.quick;
+    messageEl.dispatchEvent(new Event('input'));
+    messageEl.focus();
+  }));
+  // Amount stepper
+  minusBtn.addEventListener('click', () => {
+    let v = parseInt(amountEl.value||'1',10);
+    if (v > 1) amountEl.value = v - 1;
+  });
+  plusBtn.addEventListener('click', () => {
+    let v = parseInt(amountEl.value||'1',10);
+    if (v < 100) amountEl.value = v + 1;
+  });
+  amountEl.addEventListener('change', () => {
+    let v = parseInt(amountEl.value,10);
+    if (isNaN(v) || v < 1) v = 1;
+    if (v > 100) v = 100;
+    amountEl.value = v;
+  });
+  // Username validation UI
+  usernameEl.addEventListener('input', () => {
+    const v = usernameEl.value.trim().replace(/^@/,'').replace(/.*ngl\.link\//,'').replace('/','');
+    if (v.length >= 2) { userCheck.classList.remove('hidden'); userCheck.classList.add('flex'); } else { userCheck.classList.add('hidden'); userCheck.classList.remove('flex'); }
+  });
+  function copyLink(){ navigator.clipboard.writeText(location.href); apiStatus.textContent='Link copied'; setTimeout(()=>checkHealth(),1200); }
+  window.copyLink = copyLink;
 
-    // Sliders
-    countEl.addEventListener('input', () => countVal.textContent = countEl.value);
-    delayEl.addEventListener('input', () => delayVal.textContent = parseFloat(delayEl.value).toFixed(2) + 's');
-    messageEl.addEventListener('input', () => charCount.textContent = `${messageEl.value.length} / 300`);
-    document.querySelectorAll('.quick-btn').forEach(b => b.addEventListener('click', () => {
-      messageEl.value = b.dataset.quick;
-      messageEl.dispatchEvent(new Event('input'));
-      messageEl.focus();
-    }));
-
-    // Username hint
-    usernameEl.addEventListener('input', () => {
-      const v = usernameEl.value.trim().replace('@','').replace('https://','').replace('ngl.link/','');
-      const hint = document.getElementById('userHint');
-      if (v.length >= 2) { hint.classList.remove('hidden'); hint.textContent = '✓ ' + v; } else hint.classList.add('hidden');
-    });
-
-    // API health check
-    async function checkHealth() {
-      try {
-        const r = await fetch('/api/health', { cache: 'no-store' });
-        const j = await r.json();
-        if (j.status === 'ok') {
-          apiStatus.textContent = '● API online';
-          apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/20 text-emerald-300 text-xs font-semibold';
-          healthDot.className = 'w-2 h-2 rounded-full bg-emerald-400 mt-1 animate-pulse';
-          healthText.textContent = 'Python API online — ready to send. Vercel runtime: python3.9';
-          healthText.className = 'text-emerald-300 leading-relaxed';
-        } else throw new Error();
-      } catch {
-        apiStatus.textContent = '● API offline';
-        apiStatus.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/20 text-red-300 text-xs font-semibold';
-        healthDot.className = 'w-2 h-2 rounded-full bg-red-400 mt-1';
-        healthText.textContent = 'API not reachable — deployment may still be building. Try again in 30s.';
-      }
-    }
-    checkHealth();
-    setInterval(checkHealth, 30000);
-
-    async function testApi(){
-      const r = await fetch('/api/send');
+  // Health check
+  async function checkHealth(){
+    try{
+      const r = await fetch('/api/health', {cache:'no-store'});
       const j = await r.json();
-      alert('API says: ' + JSON.stringify(j, null, 2).slice(0, 800));
+      if(j.status==='ok'){ apiDot.className='w-2 h-2 rounded-full bg-[#10b981]'; apiStatus.textContent='API online'; apiStatus.className='text-[11px] font-semibold tracking-wide text-[#059669] uppercase'; }
+      else throw new Error();
+    }catch{ apiDot.className='w-2 h-2 rounded-full bg-[#f59e0b]'; apiStatus.textContent='API offline'; }
+  }
+  checkHealth(); setInterval(checkHealth,30000);
+
+  function setProgress(done,total){
+    const pct = total ? Math.round(done/total*100) : 0;
+    progressBar.style.width = pct+'%';
+    progressPct.textContent = pct+'%';
+    progressCount.textContent = done+' / '+total;
+  }
+
+  function showResult(successCount, total){
+    resultCard.className = 'rounded-2xl border overflow-hidden fade-up';
+    if(successCount>0){
+      resultCard.style.borderColor = '#bbf7d0';
+      resultContent.innerHTML = `
+        <div class="w-10 h-10 rounded-full bg-[#f0fdf4] border border-[#bbf7d0] flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9L7.5 12.5L14 5.5" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold tracking-tight text-[#065f46]"><span class="text-[22px] font-extrabold tracking-tight text-[#065f46]">${successCount}</span> <span class="ml-1 font-bold">messages delivered</span></div>
+          <div class="text-[11px] font-medium text-[#047857] mt-0.5">Real successful sends via Python — NGL confirmed</div>
+        </div>
+        <div class="hidden sm:flex w-10 h-10 rounded-full bg-[#10b981] items-center justify-center text-white font-bold text-[14px]">✓</div>
+      `;
+      resultContent.parentElement?.classList?.remove('hidden');
+      resultCard.querySelector('#resultContent').parentElement; // no-op
+      resultSub.textContent = successCount === total ? 'All requested messages were delivered.' : successCount + ' of ' + total + ' requested — some were rate-limited. Try again with same message.';
+      resultCard.classList.remove('hidden');
+      // subtle celebration: button pulse
+      sendBtn.classList.add('ring-4','ring-[#10b981]/10');
+      setTimeout(()=>sendBtn.classList.remove('ring-4','ring-[#10b981]/10'),600);
+    } else {
+      resultCard.style.borderColor = '#fecaca';
+      resultContent.innerHTML = `
+        <div class="w-10 h-10 rounded-full bg-[#fef2f2] border border-[#fecaca] flex items-center justify-center shrink-0">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 5V9M9 11.5V11.5" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="9" r="6.5" stroke="#ef4444" stroke-width="1.4"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="text-[13px] font-bold text-[#991b1b]">No messages delivered</div>
+          <div class="text-[11px] font-medium text-[#b91c1c] mt-0.5">Check username or NGL rate-limit. Try delay via smaller batches.</div>
+        </div>
+      `;
+      resultSub.textContent = '0 of '+total+' delivered — verify the NGL username exists.';
+      resultCard.classList.remove('hidden');
     }
-    window.testApi = testApi;
-    window.copyShare = () => { navigator.clipboard.writeText(shareUrl.value); shareUrl.value = 'Copied!'; setTimeout(()=> shareUrl.value=location.href, 1200); };
+    resultCard.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
 
-    let abort = false;
-    stopBtn.addEventListener('click', () => { abort = true; stopBtn.textContent = '⏹ Stopping…'; addLog('⛔ Stop requested — will finish current batch', 'text-amber-300'); });
+  resetBtn.addEventListener('click', ()=>{ resultCard.classList.add('hidden'); progressWrap.classList.add('hidden'); });
 
-    document.getElementById('copyLog').addEventListener('click', () => { navigator.clipboard.writeText(logContent.innerText); });
-    document.getElementById('clearLog').addEventListener('click', () => logContent.innerHTML='');
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const username = usernameEl.value.trim().replace(/^@/,'').replace(/.*ngl\.link\//,'').split('/')[0].split('?')[0];
+    const message = messageEl.value.trim();
+    const amount = parseInt(amountEl.value,10);
+    const consent = document.getElementById('consent').checked;
 
-    function addLog(msg, cls='text-white/60') {
-      const div = document.createElement('div');
-      div.className = cls + ' animate-[slideIn_0.3s_ease]';
-      div.style.animation = 'slideIn 0.3s ease';
-      const ts = new Date().toLocaleTimeString();
-      div.innerHTML = `<span class="text-white/20">[${ts}]</span> ${msg}`;
-      logContent.appendChild(div);
-      logContent.scrollTop = logContent.scrollHeight;
-    }
+    // Validation with light error styles
+    [usernameEl, messageEl].forEach(el=>el.classList.remove('input-error'));
+    if(!username){ usernameEl.classList.add('input-error'); usernameEl.focus(); return; }
+    if(username.length<2||username.length>30){ usernameEl.classList.add('input-error'); alert('Invalid username (2-30 chars)'); return; }
+    if(!message){ messageEl.classList.add('input-error'); messageEl.focus(); return; }
+    if(!consent){ alert('Please confirm you have permission.'); return; }
+    if(amount<1||amount>100){ alert('Amount must be 1-100'); return; }
 
-    function setProgress(sent, failed, total) {
-      progSent.textContent = sent;
-      progFailed.textContent = failed;
-      progTotal.textContent = total;
-      const pct = total ? Math.round((sent+failed)/total*100) : 0;
-      progPct.textContent = pct + '%';
-      progressBar.style.width = pct + '%';
-    }
+    // UI lock
+    sendBtn.disabled = true;
+    sendLabel.textContent = 'Sending…';
+    sendArrow.classList.add('hidden');
+    sendSpinner.classList.remove('hidden');
+    resultCard.classList.add('hidden');
+    progressWrap.classList.remove('hidden');
+    progressText.textContent = 'Sending…';
+    setProgress(0, amount);
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = usernameEl.value.trim().replace('@','').replace(/.*ngl\.link\//,'').replace('/','').trim();
-      const message = messageEl.value.trim();
-      const totalCount = parseInt(countEl.value,10);
-      const delay = parseFloat(delayEl.value);
-      const consent = document.getElementById('consent').checked;
+    let totalSent = 0;
+    const CHUNK = 10; // Vercel limit 20, we use 10 for safety
+    const delay = 0.4; // hidden default to avoid rate-limit
 
-      if (!username) return alert('Enter NGL username');
-      if (!message) return alert('Enter a message');
-      if (!consent) return alert('Please check the consent box');
-
-      // UI lock
-      abort = false;
-      sendBtn.disabled = true;
-      sendText.textContent = 'Sending…';
-      sendSpinner.classList.remove('hidden');
-      stopBtn.classList.remove('hidden');
-      logBox.classList.remove('hidden');
-      progressWrap.classList.remove('hidden');
-      resultBanner.classList.add('hidden');
-      logContent.innerHTML = '';
-      setProgress(0,0,totalCount);
-      addLog(`🚀 Starting — <span class="text-white font-bold">${totalCount}×</span> to <span class="text-violet-300 font-mono">${username}</span> delay ${delay}s`, 'text-white');
-      addLog(`📨 Message: “${message.replace(/</g,'&lt;')}”`, 'text-white/50');
-      addLog(`🐍 Backend: Python api/send.py on Vercel`, 'text-white/30');
-
-      // Strategy: batch server-side in chunks of 10 to stay within Vercel timeout
-      // For totalCount <=20, we could do single request, but chunking gives better progress.
-      // We'll do chunks of max 10, client delay between chunks.
-      const CHUNK = 10;
-      let sent = 0, failed = 0, processed = 0;
-
-      for (let offset = 0; offset < totalCount; offset += CHUNK) {
-        if (abort) break;
-        const chunkSize = Math.min(CHUNK, totalCount - offset);
-        addLog(`→ Batch ${Math.floor(offset/CHUNK)+1} — sending ${chunkSize}…`, 'text-violet-300');
-
-        try {
-          const res = await fetch('/api/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, message, count: chunkSize, delay: delay })
-          });
-          const data = await res.json();
-
-          if (!res.ok || !data.success) {
-            const err = data.error || data.clampNote || `HTTP ${res.status}`;
-            addLog(`❌ Batch failed: ${err}`, 'text-red-400');
-            // count all in chunk as failed
-            for (let k=0;k<chunkSize;k++) { failed++; }
-            setProgress(sent, failed, totalCount);
-            continue;
-          }
-
-          // iterate results
-          for (const r of data.results) {
-            if (r.success) {
-              sent++;
-              addLog(`<span class="text-emerald-400">[+]</span> ${r.index + offset} → Sent <span class="text-white/30">(${r.statusCode})</span>`, 'text-white/70');
-            } else {
-              failed++;
-              const note = r.note ? ` • ${r.note}` : '';
-              addLog(`<span class="text-red-400">[-]</span> ${r.index + offset} → Failed: ${r.message || r.error}${note}`, 'text-red-300/80');
-            }
-            processed++;
-            setProgress(sent, failed, totalCount);
-          }
-
-          // client-side delay between batches if needed (server already delayed per message)
-          // If delay >0, we already delayed server-side, but for UX we show progress; no extra wait needed unless we want to be kind to NGL.
-          // Add small pause between batches to avoid hammering Vercel
-          if (offset + CHUNK < totalCount && !abort) {
-            // if server delay was 0, add 300ms breather
-            if (delay === 0) await new Promise(r=>setTimeout(r, 400));
-          }
-
-        } catch (err) {
-          addLog(`❌ Network error: ${err.message} — check API deployment`, 'text-red-400');
-          failed += chunkSize;
-          setProgress(sent, failed, totalCount);
+    for(let offset=0; offset<amount; ){
+      const chunkSize = Math.min(CHUNK, amount - offset);
+      try{
+        const res = await fetch('/api/send', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ username, message, count: chunkSize, delay })
+        });
+        const data = await res.json();
+        if(!res.ok || !data.success){
+          // count as failed but continue
+          offset += chunkSize;
+          setProgress(offset, amount);
+          continue;
         }
+        // Count real successes only
+        const successes = (data.results||[]).filter(r=>r.success).length;
+        totalSent += successes;
+        offset += chunkSize;
+        setProgress(offset, amount);
+        progressText.textContent = 'Sent '+totalSent+' delivered…';
+        // small breather between chunks to be kind to NGL
+        if(offset < amount) await new Promise(r=>setTimeout(r, 400));
+      }catch(err){
+        offset += chunkSize;
+        setProgress(offset, amount);
       }
-
-      // Done
-      sendBtn.disabled = false;
-      sendText.textContent = '▶ SEND MESSAGES';
-      sendSpinner.classList.add('hidden');
-      stopBtn.classList.add('hidden');
-      stopBtn.textContent = '⏹ Stop';
-
-      if (abort) {
-        addLog(`⏹ Stopped — sent ${sent}/${totalCount}`, 'text-amber-300');
-        showResult(`Stopped — ${sent} sent, ${failed} failed of ${totalCount}`, 'amber');
-      } else {
-        addLog(`✅ Done — <span class="text-emerald-300 font-bold">${sent} sent</span>, <span class="text-red-300">${failed} failed</span> in ${totalCount}`, sent ? 'text-emerald-300' : 'text-red-300');
-        if (sent > 0) showResult(`Success — ${sent} messages delivered to ${username}! ${failed ? failed+' failed (rate limited). Try higher delay.' : ''}`, 'emerald');
-        else showResult(`No messages delivered. Check username or NGL rate limit. Try delay ≥1s.`, 'red');
-      }
-    });
-
-    function showResult(text, color) {
-      const map = {
-        emerald: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200',
-        red: 'bg-red-500/10 border-red-500/20 text-red-200',
-        amber: 'bg-amber-500/10 border-amber-500/20 text-amber-200'
-      };
-      resultBanner.className = `rounded-xl p-4 border text-sm font-medium ${map[color]}`;
-      resultBanner.textContent = text;
-      resultBanner.classList.remove('hidden');
-      resultBanner.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
-  </script>
+
+    // Done
+    sendBtn.disabled = false;
+    sendLabel.textContent = 'Send messages';
+    sendArrow.classList.remove('hidden');
+    sendSpinner.classList.add('hidden');
+    progressWrap.classList.add('hidden');
+    showResult(totalSent, amount);
+  });
+</script>
 </body>
 </html>
