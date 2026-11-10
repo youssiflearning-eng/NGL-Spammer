@@ -217,9 +217,7 @@ def send():
         "meta": {"delay": delay, "executionTime": round(time.time() - start_time, 2)}
     })
 
-# Handle Vercel's new rewrite behavior where destination path is used
-# When Vercel rewrites /api/health -> /api/index.py, Flask sees /api/index.py
-# We need to handle that by inspecting original path from headers
+# Root via rewrite also lands here - serve HTML for browser
 @app.route('/api/index.py', methods=['GET', 'POST', 'OPTIONS'])
 def index_py_fallback():
     # Try to infer original intent from headers or query
@@ -246,11 +244,36 @@ def index_py_fallback():
 
     # For GET, try to determine endpoint
     endpoint = request.args.get('endpoint') or request.args.get('path') or original or request.headers.get('x-vercel-id', '')
-    # If original contains health, return health, else return send info
     if 'health' in endpoint.lower():
         return health()
-    # Fallback: if no body, return generic send info
-    # Check Accept header or just return health for debugging
+    if 'send' in endpoint.lower():
+        return send()
+    # If browser is requesting HTML (Accept contains text/html), serve frontend
+    accept = request.headers.get('Accept', '')
+    ua = request.headers.get('User-Agent', '')
+    # Also check if original request was for root (no api path) - serve HTML
+    # When rewrite for "/" -> "/api/index.py", the original URL still may be "/" but Flask sees "/api/index.py"
+    # We can detect via Referer or via lack of API identifier -> serve HTML
+    if 'text/html' in accept or 'Mozilla' in ua or endpoint == '' or request.args.get('v') is not None:
+        # Try to serve HTML for homepage via fallback (when rewrite loses original path)
+        # If request came from browser fetching "/", serve index.html
+        # Check if this is likely a homepage request: no JSON, GET, and browser-like
+        try:
+            candidates = [
+                os.path.join(os.path.dirname(__file__), '..', 'index.html'),
+                os.path.join(os.getcwd(), 'index.html'),
+                '/var/task/index.html',
+                'index.html'
+            ]
+            for p in candidates:
+                if os.path.exists(p):
+                    with open(p, 'r', encoding='utf-8') as f:
+                        html = f.read()
+                    return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
+        except:
+            pass
+        # Fallback to send info if index not found
+        return send()
     return jsonify({
         "debug": True,
         "note": "Hit /api/index.py fallback - Vercel rewrite destination path",
