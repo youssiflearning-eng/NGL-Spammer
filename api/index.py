@@ -102,18 +102,6 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
     return response
 
-@app.route('/', methods=['GET'])
-def root():
-    return jsonify({
-        "status": "online",
-        "service": "NGL Spammer API",
-        "version": "2.0 - Flask on Vercel",
-        "endpoints": {
-            "POST /api/send": "Send NGL messages",
-            "GET /api/health": "Health check"
-        }
-    })
-
 @app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health():
     if request.method == 'OPTIONS':
