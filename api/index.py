@@ -235,53 +235,47 @@ def index_py_fallback():
                 return send()
         except:
             pass
-        # Also check query string for endpoint hint
-        endpoint = request.args.get('endpoint') or request.args.get('path') or ''
+        endpoint = request.args.get('original_path') or request.args.get('endpoint') or request.args.get('path') or original or ''
         if 'health' in endpoint or 'health' in original:
             return health()
+        if 'send' in endpoint or 'send' in original:
+            return send()
         # Default to send for POST
         return send()
 
-    # For GET, try to determine endpoint
-    endpoint = request.args.get('endpoint') or request.args.get('path') or original or request.headers.get('x-vercel-id', '')
+    # For GET, try to determine endpoint - prioritize explicit api endpoints
+    # Vercel rewrite passes original_path as query param
+    endpoint = request.args.get('original_path') or request.args.get('endpoint') or request.args.get('path') or original or ''
+    # Check if this is api health or send via query or original header
     if 'health' in endpoint.lower():
         return health()
     if 'send' in endpoint.lower():
         return send()
-    # If browser is requesting HTML (Accept contains text/html), serve frontend
-    accept = request.headers.get('Accept', '')
-    ua = request.headers.get('User-Agent', '')
-    # Also check if original request was for root (no api path) - serve HTML
-    # When rewrite for "/" -> "/api/index.py", the original URL still may be "/" but Flask sees "/api/index.py"
-    # We can detect via Referer or via lack of API identifier -> serve HTML
-    if 'text/html' in accept or 'Mozilla' in ua or endpoint == '' or request.args.get('v') is not None:
-        # Try to serve HTML for homepage via fallback (when rewrite loses original path)
-        # If request came from browser fetching "/", serve index.html
-        # Check if this is likely a homepage request: no JSON, GET, and browser-like
-        try:
-            candidates = [
-                os.path.join(os.path.dirname(__file__), '..', 'index.html'),
-                os.path.join(os.getcwd(), 'index.html'),
-                '/var/task/index.html',
-                'index.html'
-            ]
-            for p in candidates:
-                if os.path.exists(p):
-                    with open(p, 'r', encoding='utf-8') as f:
-                        html = f.read()
-                    return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
-        except:
-            pass
-        # Fallback to send info if index not found
-        return send()
+    # For any other GET to /api/index.py (which includes homepage "/" via rewrite),
+    # serve the frontend HTML by default. This makes the site work on Google.
+    # We can detect API vs homepage by looking at Accept header or by defaulting to HTML.
+    try:
+        candidates = [
+            os.path.join(os.path.dirname(__file__), '..', 'index.html'),
+            os.path.join(os.getcwd(), 'index.html'),
+            '/var/task/index.html',
+            'index.html'
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                with open(p, 'r', encoding='utf-8') as f:
+                    html = f.read()
+                return html, 200, {'Content-Type': 'text/html; charset=utf-8'}
+    except:
+        pass
+    # If index.html not found, return helpful JSON
     return jsonify({
-        "debug": True,
-        "note": "Hit /api/index.py fallback - Vercel rewrite destination path",
+        "status": "online",
+        "service": "NGL Spammer API",
+        "version": "2.0",
+        "note": "Frontend not found, but API is online",
+        "endpoints": {"GET /api/health": "Health check", "POST /api/send": "Send NGL messages"},
         "path_seen": request.path,
-        "url": request.url,
-        "original_header": original,
-        "headers": {k: v for k, v in request.headers.items() if k.lower().startswith('x-') or k.lower() in ['host','referer','x-matched-path','x-vercel-matched-path']},
-        "args": request.args.to_dict(),
         "method": request.method
     })
 
